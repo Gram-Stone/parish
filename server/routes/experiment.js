@@ -38,7 +38,13 @@ const validateSubmission = [
 ];
 
 // Submit experiment data
-router.post('/submit', validateSubmission, async (req, res) => {
+router.post('/submit', (req, res, next) => {
+  console.log('=== EXPERIMENT SUBMISSION RECEIVED ===');
+  console.log('Request path:', req.path);
+  console.log('Request method:', req.method);
+  next();
+}, validateSubmission, async (req, res) => {
+  console.log('=== EXPERIMENT SUBMISSION STARTED ===');
   try {
     console.log('Received submission data:', JSON.stringify(req.body, null, 2));
     
