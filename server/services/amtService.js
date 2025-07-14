@@ -1,12 +1,16 @@
 import { MTurkClient, CreateHITCommand, ApproveAssignmentCommand, RejectAssignmentCommand, GetHITCommand } from '@aws-sdk/client-mturk';
 
+// Force sandbox for testing - change this when ready for production
+const USE_SANDBOX = true; // Set to false for production HITs
+
 // Initialize MTurk client
 const createMTurkClient = () => {
+  
   return new MTurkClient({
     region: process.env.AWS_REGION || 'us-east-1',
-    endpoint: process.env.NODE_ENV === 'production' 
-      ? process.env.MTURK_ENDPOINT_PRODUCTION 
-      : process.env.MTURK_ENDPOINT_SANDBOX,
+    endpoint: USE_SANDBOX 
+      ? process.env.MTURK_ENDPOINT_SANDBOX 
+      : process.env.MTURK_ENDPOINT_PRODUCTION,
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.AMT_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.AMT_SECRET_ACCESS_KEY
@@ -22,9 +26,14 @@ export const createHIT = async (hitConfig) => {
       hasAMTKey: !!process.env.AMT_ACCESS_KEY_ID,
       hasAWSSecret: !!process.env.AWS_SECRET_ACCESS_KEY,
       hasAMTSecret: !!process.env.AMT_SECRET_ACCESS_KEY,
-      endpoint: process.env.NODE_ENV === 'production' 
-        ? process.env.MTURK_ENDPOINT_PRODUCTION 
-        : process.env.MTURK_ENDPOINT_SANDBOX
+      nodeEnv: process.env.NODE_ENV,
+      isProduction: process.env.NODE_ENV === 'production',
+      endpoint: USE_SANDBOX 
+        ? process.env.MTURK_ENDPOINT_SANDBOX 
+        : process.env.MTURK_ENDPOINT_PRODUCTION,
+      forcedSandbox: USE_SANDBOX,
+      sandboxEndpoint: process.env.MTURK_ENDPOINT_SANDBOX,
+      productionEndpoint: process.env.MTURK_ENDPOINT_PRODUCTION
     });
     
     const mturk = createMTurkClient();
@@ -32,7 +41,7 @@ export const createHIT = async (hitConfig) => {
     const params = {
       Title: hitConfig.title,
       Description: hitConfig.description,
-      Reward: hitConfig.reward,
+      Reward: hitConfig.reward.toString(),
       MaxAssignments: hitConfig.maxAssignments,
       AssignmentDurationInSeconds: hitConfig.assignmentDuration || 3600,
       LifetimeInSeconds: hitConfig.lifetime || 604800,
@@ -67,9 +76,9 @@ export const createHIT = async (hitConfig) => {
     const response = await mturk.send(command);
     
     // Generate sandbox preview URL
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://worker.mturk.com'
-      : 'https://workersandbox.mturk.com';
+    const baseUrl = USE_SANDBOX
+      ? 'https://workersandbox.mturk.com'
+      : 'https://worker.mturk.com';
     const previewUrl = `${baseUrl}/mturk/preview?groupId=${response.HIT.HITTypeId}`;
     
     return {
