@@ -34,9 +34,12 @@ const validateSubmission = [
 // Submit experiment data
 router.post('/submit', validateSubmission, async (req, res) => {
   try {
+    console.log('Received submission data:', JSON.stringify(req.body, null, 2));
+    
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ 
         error: 'Validation failed', 
         details: errors.array() 
@@ -143,9 +146,12 @@ router.post('/submit', validateSubmission, async (req, res) => {
 
   } catch (error) {
     console.error('Submission error:', error);
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ 
       error: 'Internal server error',
-      message: 'Please try again. If the problem persists, contact support.'
+      message: 'Please try again. If the problem persists, contact support.',
+      ...(process.env.NODE_ENV !== 'production' && { details: error.message })
     });
   }
 });
