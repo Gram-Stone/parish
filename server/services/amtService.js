@@ -16,44 +16,66 @@ const createMTurkClient = () => {
 
 // Create a new HIT
 export const createHIT = async (hitConfig) => {
-  const mturk = createMTurkClient();
-  
-  const params = {
-    Title: hitConfig.title,
-    Description: hitConfig.description,
-    Reward: hitConfig.reward,
-    MaxAssignments: hitConfig.maxAssignments,
-    AssignmentDurationInSeconds: hitConfig.assignmentDuration || 3600,
-    LifetimeInSeconds: hitConfig.lifetime || 604800,
-    Keywords: hitConfig.keywords ? hitConfig.keywords.join(', ') : 'psychology, decision making, research',
-    Question: `
-      <ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
-        <ExternalURL>${hitConfig.externalURL}</ExternalURL>
-        <FrameHeight>600</FrameHeight>
-      </ExternalQuestion>
-    `,
-    QualificationRequirements: [
-      {
-        QualificationTypeId: '00000000000000000071', // US Locale
-        Comparator: 'EqualTo',
-        LocaleValues: [{ Country: 'US' }]
-      },
-      {
-        QualificationTypeId: '000000000000000000L0', // Approval Rate
-        Comparator: 'GreaterThanOrEqualTo',
-        IntegerValues: [95]
-      },
-      {
-        QualificationTypeId: '00000000000000000040', // Number of HITs Approved
-        Comparator: 'GreaterThanOrEqualTo',
-        IntegerValues: [100]
-      }
-    ],
-    AutoApprovalDelayInSeconds: 259200 // 3 days
-  };
-  
-  const command = new CreateHITCommand(params);
-  return await mturk.send(command);
+  try {
+    const mturk = createMTurkClient();
+    
+    const params = {
+      Title: hitConfig.title,
+      Description: hitConfig.description,
+      Reward: hitConfig.reward,
+      MaxAssignments: hitConfig.maxAssignments,
+      AssignmentDurationInSeconds: hitConfig.assignmentDuration || 3600,
+      LifetimeInSeconds: hitConfig.lifetime || 604800,
+      Keywords: hitConfig.keywords ? hitConfig.keywords.join(', ') : 'psychology, decision making, research',
+      Question: `
+        <ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
+          <ExternalURL>${hitConfig.externalURL}</ExternalURL>
+          <FrameHeight>600</FrameHeight>
+        </ExternalQuestion>
+      `,
+      QualificationRequirements: [
+        {
+          QualificationTypeId: '00000000000000000071', // US Locale
+          Comparator: 'EqualTo',
+          LocaleValues: [{ Country: 'US' }]
+        },
+        {
+          QualificationTypeId: '000000000000000000L0', // Approval Rate
+          Comparator: 'GreaterThanOrEqualTo',
+          IntegerValues: [95]
+        },
+        {
+          QualificationTypeId: '00000000000000000040', // Number of HITs Approved
+          Comparator: 'GreaterThanOrEqualTo',
+          IntegerValues: [100]
+        }
+      ],
+      AutoApprovalDelayInSeconds: 259200 // 3 days
+    };
+    
+    const command = new CreateHITCommand(params);
+    const response = await mturk.send(command);
+    
+    // Generate sandbox preview URL
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://worker.mturk.com'
+      : 'https://workersandbox.mturk.com';
+    const previewUrl = `${baseUrl}/mturk/preview?groupId=${response.HIT.HITTypeId}`;
+    
+    return {
+      success: true,
+      hitId: response.HIT.HITId,
+      hitTypeId: response.HIT.HITTypeId,
+      previewUrl: previewUrl,
+      status: response.HIT.HITStatus
+    };
+  } catch (error) {
+    console.error('Error creating HIT:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
 };
 
 // Approve an assignment

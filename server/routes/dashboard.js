@@ -2,6 +2,7 @@ import express from 'express';
 import Response from '../models/Response.js';
 import ExperimentControl from '../models/ExperimentControl.js';
 import { calculateEffectSize, calculatePower, performChiSquareTest } from '../services/statistics.js';
+import { createHIT } from '../services/amtService.js';
 
 const router = express.Router();
 
@@ -394,25 +395,45 @@ router.post('/experiments/:experimentId/hits', async (req, res) => {
 
     console.log(`Found experiment: ${experimentControl.title}`);
 
-    // For now, just return a mock HIT ID since AMT integration requires credentials
-    const mockHitId = `MOCK_HIT_${Date.now()}`;
+    // Create real AMT HIT using the AMT service
+    const hitConfig = {
+      title: customTitle || `${experimentControl.title} Study`,
+      description: customDescription || experimentControl.description || 'Psychology experiment on decision making',
+      reward: 0.50,
+      maxAssignments,
+      externalURL: `${req.protocol}://${req.get('host')}?experiment=${experimentId}`
+    };
+
+    console.log('Creating HIT with config:', hitConfig);
+    const hitResult = await createHIT(hitConfig);
     
+    if (!hitResult.success) {
+      console.error('Failed to create HIT:', hitResult.error);
+      return res.status(500).json({
+        error: 'Failed to create HIT',
+        details: hitResult.error
+      });
+    }
+
     // Add to active HITs
     experimentControl.activeHits.push({
-      hitId: mockHitId,
+      hitId: hitResult.hitId,
+      hitTypeId: hitResult.hitTypeId,
       assignmentsRemaining: maxAssignments,
       status: 'assignable'
     });
 
-    console.log(`Saving experiment with new HIT: ${mockHitId}`);
+    console.log(`Saving experiment with new HIT: ${hitResult.hitId}`);
     await experimentControl.save();
-    console.log(`HIT created successfully: ${mockHitId}`);
+    console.log(`HIT created successfully: ${hitResult.hitId}`);
 
     res.json({
       success: true,
-      hitId: mockHitId,
-      message: 'Mock HIT created successfully. In production, this would create a real AMT HIT.',
-      experimentUrl: `${req.protocol}://${req.get('host')}/?workerId=MOCK_WORKER&assignmentId=MOCK_ASSIGNMENT&hitId=${mockHitId}`
+      hitId: hitResult.hitId,
+      hitTypeId: hitResult.hitTypeId,
+      message: 'AMT HIT created successfully in sandbox environment.',
+      previewUrl: hitResult.previewUrl,
+      experimentUrl: hitConfig.externalURL
     });
 
   } catch (error) {
