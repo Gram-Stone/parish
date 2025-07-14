@@ -8,9 +8,50 @@ const router = express.Router();
 // Get experiment overview
 router.get('/experiments', async (req, res) => {
   try {
-    const experiments = await ExperimentControl.find({})
+    let experiments = await ExperimentControl.find({})
       .sort({ createdAt: -1 })
       .select('-notes -adminNotes');
+
+    // If no experiments exist, create a default one
+    if (experiments.length === 0) {
+      const defaultExperiment = new ExperimentControl({
+        experimentId: 'allais-fluency-v1',
+        title: 'Allais Paradox with Fluency Manipulation',
+        description: 'Psychology experiment investigating the Allais paradox with font-based fluency conditions',
+        version: '1.0.0',
+        status: 'active',
+        targetSampleSize: {
+          total: 200,
+          byCondition: {
+            easyFont_present: 50,
+            easyFont_absent: 50,
+            hardFont_present: 50,
+            hardFont_absent: 50
+          }
+        },
+        budget: {
+          total: 200,
+          rewardPerParticipant: 1.00
+        },
+        hitConfig: {
+          title: 'Decision Making Study (15-20 minutes)',
+          description: 'Participate in a psychology study about decision making. You will make choices about investment scenarios and answer brief questions.',
+          keywords: ['psychology', 'decision making', 'survey', 'research'],
+          reward: '$1.00',
+          assignmentDuration: 3600,
+          lifetime: 604800,
+          maxAssignments: 1
+        },
+        researcher: {
+          name: 'Research Team',
+          email: 'researcher@example.com',
+          institution: 'University'
+        }
+      });
+
+      await defaultExperiment.save();
+      experiments = [defaultExperiment];
+    }
 
     res.json(experiments);
 
@@ -270,6 +311,43 @@ router.patch('/experiment/:experimentId/status', async (req, res) => {
   } catch (error) {
     console.error('Status update error:', error);
     res.status(500).json({ error: 'Failed to update experiment status' });
+  }
+});
+
+// Create a new HIT for an experiment
+router.post('/experiments/:experimentId/hits', async (req, res) => {
+  try {
+    const { experimentId } = req.params;
+    const { maxAssignments = 1, customTitle, customDescription } = req.body;
+
+    // Get experiment control
+    const experimentControl = await ExperimentControl.findOne({ experimentId });
+    if (!experimentControl) {
+      return res.status(404).json({ error: 'Experiment not found' });
+    }
+
+    // For now, just return a mock HIT ID since AMT integration requires credentials
+    const mockHitId = `MOCK_HIT_${Date.now()}`;
+    
+    // Add to active HITs
+    experimentControl.activeHits.push({
+      hitId: mockHitId,
+      assignmentsRemaining: maxAssignments,
+      status: 'assignable'
+    });
+
+    await experimentControl.save();
+
+    res.json({
+      success: true,
+      hitId: mockHitId,
+      message: 'Mock HIT created successfully. In production, this would create a real AMT HIT.',
+      experimentUrl: `${req.protocol}://${req.get('host')}/?workerId=MOCK_WORKER&assignmentId=MOCK_ASSIGNMENT&hitId=${mockHitId}`
+    });
+
+  } catch (error) {
+    console.error('HIT creation error:', error);
+    res.status(500).json({ error: 'Failed to create HIT' });
   }
 });
 
