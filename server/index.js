@@ -33,6 +33,13 @@ app.use(helmet({
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
+      frameAncestors: [
+        "'self'",
+        "https://*.mturk.com",
+        "https://*.amazonaws.com", 
+        "https://workersandbox.mturk.com",
+        "https://worker.mturk.com"
+      ],
     },
   },
 }));
