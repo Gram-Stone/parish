@@ -318,11 +318,24 @@ router.post('/experiments/:experimentId/hits', async (req, res) => {
     const { experimentId } = req.params;
     const { maxAssignments = 1, customTitle, customDescription } = req.body;
 
+    console.log(`Creating HIT for experiment: ${experimentId}`);
+
+    // List all experiments for debugging
+    const allExperiments = await ExperimentControl.find({}, 'experimentId title');
+    console.log('All experiments in database:', allExperiments.map(e => ({ id: e.experimentId, title: e.title })));
+
     // Get experiment control
     const experimentControl = await ExperimentControl.findOne({ experimentId });
     if (!experimentControl) {
-      return res.status(404).json({ error: 'Experiment not found' });
+      console.log(`Experiment not found: ${experimentId}`);
+      console.log('Available experiments:', allExperiments.map(e => e.experimentId));
+      return res.status(404).json({ 
+        error: `Experiment '${experimentId}' not found`,
+        availableExperiments: allExperiments.map(e => e.experimentId)
+      });
     }
+
+    console.log(`Found experiment: ${experimentControl.title}`);
 
     // For now, just return a mock HIT ID since AMT integration requires credentials
     const mockHitId = `MOCK_HIT_${Date.now()}`;
@@ -334,7 +347,9 @@ router.post('/experiments/:experimentId/hits', async (req, res) => {
       status: 'assignable'
     });
 
+    console.log(`Saving experiment with new HIT: ${mockHitId}`);
     await experimentControl.save();
+    console.log(`HIT created successfully: ${mockHitId}`);
 
     res.json({
       success: true,
@@ -345,7 +360,12 @@ router.post('/experiments/:experimentId/hits', async (req, res) => {
 
   } catch (error) {
     console.error('HIT creation error:', error);
-    res.status(500).json({ error: 'Failed to create HIT' });
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({ 
+      error: 'Failed to create HIT', 
+      details: error.message 
+    });
   }
 });
 
