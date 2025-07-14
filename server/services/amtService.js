@@ -17,6 +17,16 @@ const createMTurkClient = () => {
 // Create a new HIT
 export const createHIT = async (hitConfig) => {
   try {
+    console.log('AMT credentials check:', {
+      hasAWSKey: !!process.env.AWS_ACCESS_KEY_ID,
+      hasAMTKey: !!process.env.AMT_ACCESS_KEY_ID,
+      hasAWSSecret: !!process.env.AWS_SECRET_ACCESS_KEY,
+      hasAMTSecret: !!process.env.AMT_SECRET_ACCESS_KEY,
+      endpoint: process.env.NODE_ENV === 'production' 
+        ? process.env.MTURK_ENDPOINT_PRODUCTION 
+        : process.env.MTURK_ENDPOINT_SANDBOX
+    });
+    
     const mturk = createMTurkClient();
     
     const params = {

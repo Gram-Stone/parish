@@ -409,6 +409,29 @@ router.post('/experiments/:experimentId/hits', async (req, res) => {
     
     if (!hitResult.success) {
       console.error('Failed to create HIT:', hitResult.error);
+      
+      // If credentials are invalid, return a demo response showing expected format
+      if (hitResult.error.includes('credential')) {
+        const mockHitId = `DEMO_HIT_${Date.now()}`;
+        const mockHitTypeId = `DEMO_HIT_TYPE_${Date.now()}`;
+        const demoSandboxUrl = `https://workersandbox.mturk.com/mturk/preview?groupId=${mockHitTypeId}`;
+        
+        return res.json({
+          success: false,
+          error: 'AWS credentials not configured',
+          demo: true,
+          hitId: mockHitId,
+          hitTypeId: mockHitTypeId,
+          message: 'Demo response - configure AWS credentials for real HIT creation',
+          sandboxPreviewUrl: demoSandboxUrl,
+          experimentUrl: hitConfig.externalURL,
+          instructions: {
+            workerLink: demoSandboxUrl,
+            description: 'This is a demo URL format. Configure AWS credentials for real AMT integration.'
+          }
+        });
+      }
+      
       return res.status(500).json({
         error: 'Failed to create HIT',
         details: hitResult.error
@@ -432,8 +455,12 @@ router.post('/experiments/:experimentId/hits', async (req, res) => {
       hitId: hitResult.hitId,
       hitTypeId: hitResult.hitTypeId,
       message: 'AMT HIT created successfully in sandbox environment.',
-      previewUrl: hitResult.previewUrl,
-      experimentUrl: hitConfig.externalURL
+      sandboxPreviewUrl: hitResult.previewUrl,
+      experimentUrl: hitConfig.externalURL,
+      instructions: {
+        workerLink: hitResult.previewUrl,
+        description: 'Copy the sandboxPreviewUrl to test as a worker in AMT sandbox'
+      }
     });
 
   } catch (error) {
