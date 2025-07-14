@@ -1,0 +1,250 @@
+.App {
+  font-family: 'Times New Roman', serif;
+  background-color: #ffffff;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Simple container */
+.experiment-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.experiment-page {
+  margin: 20px 0;
+}
+
+.experiment-content {
+  text-align: left;
+}
+
+/* Page navigation */
+.page-navigation {
+  margin-top: 30px;
+  padding: 20px 0;
+  border-top: 1px solid #cccccc;
+}
+
+.page-navigation button {
+  margin-right: 10px;
+}
+
+
+/* Option boxes like classic forms */
+.choice-buttons {
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.choice-button {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  font-size: 14px;
+  font-family: 'Times New Roman', serif;
+  border: 2px solid #999999;
+  background: #ffffff;
+  color: #000000;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.choice-button:hover {
+  background: #f5f5f5;
+  border-color: #666666;
+}
+
+.choice-button.selected {
+  background: #e6f3ff;
+  border-color: #0066cc;
+}
+
+/* Lottery presentation - simple form style */
+.lottery-scenario {
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.lottery-options {
+  margin: 20px 0;
+}
+
+.lottery-option {
+  background: white;
+  border: 1px solid #999999;
+  padding: 15px;
+  text-align: left;
+  margin: 10px 0;
+}
+
+.lottery-option:hover {
+  background: #f5f5f5;
+}
+
+.lottery-option h4 {
+  color: #333333;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+/* Attention check styles - simple form style */
+.attention-check {
+  background: #fffacd;
+  border: 1px solid #cccccc;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.math-problem {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin: 15px 0;
+  color: #333333;
+}
+
+.math-input {
+  max-width: 200px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 16px;
+  font-weight: normal;
+  padding: 5px;
+  border: 1px solid #999999;
+}
+
+/* Timer display */
+.timer-display {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #6c757d;
+  z-index: 999;
+}
+
+.timer-warning {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Preview mode - simple style */
+.preview-container {
+  text-align: center;
+  padding: 40px 20px;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  margin: 20px 0;
+}
+
+.preview-title {
+  color: #333333;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.preview-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333333;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Error states - simple style */
+.error-container {
+  background: #ffcccc;
+  border: 1px solid #999999;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.error-title {
+  color: #cc0000;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.error-message {
+  color: #cc0000;
+}
+
+/* Completion page - simple style */
+.completion-container {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.completion-code {
+  background: #ccffcc;
+  border: 1px solid #999999;
+  padding: 20px;
+  margin: 20px 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #006600;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+}
+
+.amt-submit-form {
+  margin: 30px 0;
+}
+
+.submit-button {
+  font-size: 16px;
+  padding: 12px 24px;
+  background: #cccccc;
+  color: #000000;
+  border: 1px solid #999999;
+  cursor: pointer;
+  font-family: 'Times New Roman', serif;
+}
+
+.submit-button:hover {
+  background: #bbbbbb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .experiment-container {
+    padding: 16px;
+  }
+  
+  .lottery-options {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .choice-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .choice-button {
+    padding: 16px;
+    font-size: 15px;
+  }
+  
+  .timer-display {
+    position: static;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  
+  .completion-code {
+    font-size: 20px;
+    padding: 20px;
+  }
+}
