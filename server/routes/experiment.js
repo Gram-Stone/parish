@@ -73,8 +73,12 @@ router.post('/submit', validateSubmission, async (req, res) => {
     }
 
     // Quality control checks
+    console.log('Math response:', responses.math, 'Type:', typeof responses.math);
     const attentionPassed = validateAttentionCheck(parseInt(responses.math));
+    console.log('Attention check result:', attentionPassed);
+    
     const timeValidation = validateCompletionTime(timing.durationMs);
+    console.log('Time validation:', timeValidation);
     
     const failed = !attentionPassed || !timeValidation.isValid;
     const failureReasons = [];
@@ -83,6 +87,8 @@ router.post('/submit', validateSubmission, async (req, res) => {
     if (!timeValidation.isValid) {
       failureReasons.push(...timeValidation.reasons);
     }
+    
+    console.log('Final failure assessment:', { failed, failureReasons, attentionPassed, timeValid: timeValidation.isValid });
 
     // Generate completion code
     const completionCode = generateCompletionCode();
