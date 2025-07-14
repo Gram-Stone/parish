@@ -45,12 +45,16 @@ const CompletionPage = () => {
     dispatch(setSubmissionStatus('submitting'));
     
     try {
+      const endTime = new Date().toISOString();
+      const durationMs = experimentData.startTime ? 
+        new Date(endTime) - new Date(experimentData.startTime) : 0;
+      
       const submissionData = {
         ...experimentData,
         timing: {
           startTime: experimentData.startTime,
-          endTime: new Date().toISOString(),
-          durationMs: experimentData.completionTimeMs
+          endTime: endTime,
+          durationMs: durationMs
         },
         responses: {
           lottery1: experimentData.responses.lottery1,
