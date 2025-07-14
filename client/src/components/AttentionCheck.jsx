@@ -15,8 +15,10 @@ const AttentionCheck = () => {
   const [answer, setAnswer] = useState(responses.math || '');
   const [isValid, setIsValid] = useState(false);
 
-  const correctAnswer = 42;
-  const mathProblem = "15 + 27";
+  const num1 = 15;
+  const num2 = 27;
+  const correctAnswer = num1 + num2; // 42
+  const mathProblem = `${num1} + ${num2}`;
 
   useEffect(() => {
     const numericAnswer = parseInt(answer);
