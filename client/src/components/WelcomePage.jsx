@@ -25,8 +25,7 @@ const WelcomePage = () => {
         <h3>What to Expect:</h3>
         <ul style={{ textAlign: 'left', maxWidth: '600px', margin: '0 auto 2rem' }}>
           <li><strong>Duration:</strong> Approximately 15-20 minutes</li>
-          <li><strong>Tasks:</strong> You will make decisions about investment scenarios and answer some brief questions</li>
-          <li><strong>Attention Check:</strong> There will be a simple math problem to ensure you are paying attention</li>
+          <li><strong>Tasks:</strong> You will make decisions and answer some brief questions</li>
           <li><strong>Completion Code:</strong> You will receive a unique code at the end to submit on AMT</li>
         </ul>
         
@@ -40,11 +39,10 @@ const WelcomePage = () => {
         
         <div className="alert alert-info">
           <strong>Consent:</strong> By clicking "Begin Study" below, you confirm that you:
-          <ul style={{ textAlign: 'left', marginTop: '0.5rem' }}>
+          <ul style={{ textAlign: 'left', marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
             <li>Are 18 years of age or older</li>
-            <li>Understand this is a research study</li>
+            <li>Understand this is a research study and can withdraw at any time</li>
             <li>Agree to participate voluntarily</li>
-            <li>Can withdraw at any time without penalty</li>
           </ul>
         </div>
       </div>

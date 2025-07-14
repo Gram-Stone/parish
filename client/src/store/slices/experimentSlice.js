@@ -11,6 +11,7 @@ const initialState = {
   completionCode: null,
   isSubmitted: false,
   isComplete: false,
+  pageOrder: null, // Array of page objects with randomized order
 };
 
 const experimentSlice = createSlice({
@@ -64,6 +65,9 @@ const experimentSlice = createSlice({
         state.currentPage -= 1;
       }
     },
+    setPageOrder: (state, action) => {
+      state.pageOrder = action.payload;
+    },
     resetExperiment: () => initialState,
   },
 });
@@ -80,6 +84,7 @@ export const {
   setComplete,
   nextPage,
   previousPage,
+  setPageOrder,
   resetExperiment,
 } = experimentSlice.actions;
 

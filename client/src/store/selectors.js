@@ -8,6 +8,7 @@ export const selectIsComplete = (state) => state.experiment.isComplete;
 export const selectIsSubmitted = (state) => state.experiment.isSubmitted;
 export const selectCompletionTime = (state) => state.experiment.completionTimeMs;
 export const selectStartTime = (state) => state.experiment.startTime;
+export const selectPageOrder = (state) => state.experiment.pageOrder;
 
 // AMT selectors
 export const selectAMTParams = (state) => ({

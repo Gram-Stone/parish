@@ -52,11 +52,9 @@ const AttentionCheck = () => {
 
   return (
     <div className="experiment-content">
-      <h2>Attention Check</h2>
-      
-      <div className="attention-check">
+      <div className="card">
         <p>
-          To ensure you are paying attention, please solve this simple math problem:
+          Please solve this simple math problem:
         </p>
         
         <div className="math-problem">
@@ -74,22 +72,8 @@ const AttentionCheck = () => {
             placeholder="Enter your answer"
             autoComplete="off"
           />
-          {answer && !isValid && (
-            <div className="form-error">
-              Please check your calculation and try again.
-            </div>
-          )}
-          {answer && isValid && (
-            <div style={{ color: '#28a745', fontSize: '14px', marginTop: '4px' }}>
-              ✓ Correct!
-            </div>
-          )}
         </div>
         
-        <p style={{ fontSize: '14px', color: '#6c757d', marginTop: '16px' }}>
-          <strong>Important:</strong> You must answer this question correctly to receive 
-          payment for the study.
-        </p>
       </div>
 
       <div className="page-navigation">

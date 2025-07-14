@@ -1,11 +1,14 @@
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 import {
   selectCurrentPage,
   selectIsPreview,
   selectFontCondition,
   selectAttributionCondition,
-  selectTimeOutOfBounds
+  selectTimeOutOfBounds,
+  selectPageOrder
 } from '../store/selectors.js';
+import { setPageOrder } from '../store/slices/experimentSlice.js';
 import { useTimeTracking } from '../hooks/useTimeTracking.js';
 
 // Import page components
@@ -14,21 +17,85 @@ import PreviewPage from './PreviewPage.jsx';
 import WelcomePage from './WelcomePage.jsx';
 import LotteryChoice from './LotteryChoice.jsx';
 import AttentionCheck from './AttentionCheck.jsx';
-import FillerTasks from './FillerTasks.jsx';
+import WeatherQuestion from './WeatherQuestion.jsx';
+import BrandQuestion from './BrandQuestion.jsx';
+import EducationQuestion from './EducationQuestion.jsx';
 import CompletionPage from './CompletionPage.jsx';
 
 const ExperimentFlow = () => {
+  const dispatch = useDispatch();
   const currentPage = useSelector(selectCurrentPage);
   const isPreview = useSelector(selectIsPreview);
   const fontCondition = useSelector(selectFontCondition);
   const attributionCondition = useSelector(selectAttributionCondition);
   const timeOutOfBounds = useSelector(selectTimeOutOfBounds);
+  const pageOrder = useSelector(selectPageOrder);
   
   // Time tracking starts when timer starts (after "Begin Study")
   useTimeTracking();
 
-  // Show loading if conditions haven't been set yet (and not in preview)
-  if (!isPreview && (!fontCondition || !attributionCondition)) {
+  // Generate randomized page order on first load
+  useEffect(() => {
+    if (!pageOrder && !isPreview) {
+      const generatePageOrder = () => {
+        // Fixed pages that must be in order
+        const fixedPages = [
+          { id: 'welcome', component: <WelcomePage /> },
+          { 
+            id: 'lottery1', 
+            component: <LotteryChoice 
+              scenario="A" 
+              responseKey="lottery1"
+              title="Investment Scenario A"
+            /> 
+          }
+        ];
+
+        // Questions that can be randomized (excluding age and gender)
+        const randomizablePages = [
+          { id: 'attention', component: <AttentionCheck /> },
+          { id: 'weather', component: <WeatherQuestion /> },
+          { id: 'brand', component: <BrandQuestion /> },
+          { id: 'education', component: <EducationQuestion /> }
+        ];
+
+        // Shuffle the randomizable pages
+        const shuffled = [...randomizablePages].sort(() => Math.random() - 0.5);
+
+        // Insert lottery2 such that it's never consecutive with lottery1
+        // and ensure at least one question separates them
+        const insertIndex = Math.min(
+          Math.floor(Math.random() * (shuffled.length - 1)) + 1, 
+          shuffled.length - 1
+        ); // Insert somewhere in the middle, not at the very end
+        
+        const lottery2Page = { 
+          id: 'lottery2', 
+          component: <LotteryChoice 
+            scenario="B" 
+            responseKey="lottery2"
+            title="Investment Scenario B"
+          /> 
+        };
+
+        shuffled.splice(insertIndex, 0, lottery2Page);
+
+        // Final order: welcome, lottery1, then randomized questions with lottery2 inserted
+        const finalOrder = [
+          ...fixedPages,
+          ...shuffled,
+          { id: 'completion', component: <CompletionPage /> }
+        ];
+
+        return finalOrder;
+      };
+
+      dispatch(setPageOrder(generatePageOrder()));
+    }
+  }, [pageOrder, isPreview, dispatch]);
+
+  // Show loading if conditions or page order haven't been set yet (and not in preview)
+  if (!isPreview && (!fontCondition || !attributionCondition || !pageOrder)) {
     return <LoadingPage />;
   }
 
@@ -56,31 +123,8 @@ const ExperimentFlow = () => {
     );
   }
 
-  // Define experiment pages
-  const pages = [
-    { id: 'welcome', component: <WelcomePage /> },
-    { 
-      id: 'lottery1', 
-      component: <LotteryChoice 
-        scenario="A" 
-        responseKey="lottery1"
-        title="Investment Scenario A"
-      /> 
-    },
-    { id: 'attention', component: <AttentionCheck /> },
-    { id: 'filler', component: <FillerTasks /> },
-    { 
-      id: 'lottery2', 
-      component: <LotteryChoice 
-        scenario="B" 
-        responseKey="lottery2"
-        title="Investment Scenario B"
-      /> 
-    },
-    { id: 'completion', component: <CompletionPage /> }
-  ];
-
-  const currentPageComponent = pages[currentPage]?.component;
+  // Use the randomized page order
+  const currentPageComponent = pageOrder?.[currentPage]?.component;
 
   if (!currentPageComponent) {
     return (
