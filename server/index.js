@@ -57,8 +57,9 @@ const submitLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 5, // limit each IP to 5 submissions per minute
   message: 'Too many submission attempts, please try again later.',
-  onLimitReached: (req, res) => {
+  handler: (req, res) => {
     console.log(`Rate limit reached for IP: ${req.ip} on ${req.path}`);
+    res.status(429).json({ error: 'Too many submission attempts, please try again later.' });
   }
 });
 
