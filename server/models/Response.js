@@ -25,11 +25,6 @@ const responseSchema = new mongoose.Schema({
     enum: ['easy', 'hard'], 
     required: true 
   },
-  attributionCondition: { 
-    type: String, 
-    enum: ['present', 'absent'], 
-    required: true 
-  },
   
   // Core experimental data
   lottery1Choice: { 
@@ -123,7 +118,7 @@ const responseSchema = new mongoose.Schema({
 
 // Compound indexes for efficient querying
 responseSchema.index({ workerId: 1, assignmentId: 1 });
-responseSchema.index({ fontCondition: 1, attributionCondition: 1 });
+responseSchema.index({ fontCondition: 1 });
 responseSchema.index({ failed: 1, attentionCheckPassed: 1 });
 responseSchema.index({ createdAt: 1 });
 

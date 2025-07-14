@@ -23,10 +23,8 @@ router.get('/experiments', async (req, res) => {
         targetSampleSize: {
           total: 200,
           byCondition: {
-            easyFont_present: 50,
-            easyFont_absent: 50,
-            hardFont_present: 50,
-            hardFont_absent: 50
+            easy: 100,
+            hard: 100
           }
         },
         budget: {

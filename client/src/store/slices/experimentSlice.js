@@ -7,7 +7,6 @@ const initialState = {
   endTime: null,
   completionTimeMs: 0,
   fontCondition: null, // 'easy' or 'hard'
-  attributionCondition: null, // 'present' or 'absent'
   completionCode: null,
   isSubmitted: false,
   isComplete: false,
@@ -38,9 +37,8 @@ const experimentSlice = createSlice({
       }
     },
     setConditions: (state, action) => {
-      const { fontCondition, attributionCondition } = action.payload;
+      const { fontCondition } = action.payload;
       state.fontCondition = fontCondition;
-      state.attributionCondition = attributionCondition;
     },
     setCompletionCode: (state, action) => {
       state.completionCode = action.payload;

@@ -21,9 +21,8 @@ export const initializeAMTParams = (dispatch) => {
   if (amtParams.assignmentId !== 'ASSIGNMENT_ID_NOT_AVAILABLE') {
     // Random condition assignment
     const fontCondition = Math.random() < 0.5 ? 'easy' : 'hard';
-    const attributionCondition = Math.random() < 0.5 ? 'present' : 'absent';
     
-    dispatch(setConditions({ fontCondition, attributionCondition }));
+    dispatch(setConditions({ fontCondition }));
     // Don't start timer yet - wait for "Begin Study" click
     
     // Collect browser information for quality control

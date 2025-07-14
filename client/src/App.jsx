@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ExperimentFlow from './components/ExperimentFlow.jsx';
+import ExperimentEngine from './engine/ExperimentEngine.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import { initializeAMTParams } from './hooks/useAMTInitialization.js';
+import allaisFluencyExperiment from './experiments/allais-fluency.js';
 import './styles/App.css';
 import './styles/fontConditions.css';
 
@@ -19,7 +20,10 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          <Route path="/" element={<ExperimentFlow />} />
+          <Route 
+            path="/" 
+            element={<ExperimentEngine experimentConfig={allaisFluencyExperiment} />} 
+          />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

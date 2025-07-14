@@ -34,10 +34,8 @@ const experimentControlSchema = new mongoose.Schema({
   targetSampleSize: {
     total: { type: Number, required: true, min: 1 },
     byCondition: {
-      easyFont_present: { type: Number, default: 0 },
-      easyFont_absent: { type: Number, default: 0 },
-      hardFont_present: { type: Number, default: 0 },
-      hardFont_absent: { type: Number, default: 0 }
+      easy: { type: Number, default: 0 },
+      hard: { type: Number, default: 0 }
     }
   },
   
@@ -47,10 +45,8 @@ const experimentControlSchema = new mongoose.Schema({
     valid: { type: Number, default: 0 },
     failed: { type: Number, default: 0 },
     byCondition: {
-      easyFont_present: { type: Number, default: 0 },
-      easyFont_absent: { type: Number, default: 0 },
-      hardFont_present: { type: Number, default: 0 },
-      hardFont_absent: { type: Number, default: 0 }
+      easy: { type: Number, default: 0 },
+      hard: { type: Number, default: 0 }
     }
   },
   

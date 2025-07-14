@@ -2,7 +2,6 @@
 export const selectCurrentPage = (state) => state.experiment.currentPage;
 export const selectResponses = (state) => state.experiment.responses;
 export const selectFontCondition = (state) => state.experiment.fontCondition;
-export const selectAttributionCondition = (state) => state.experiment.attributionCondition;
 export const selectCompletionCode = (state) => state.experiment.completionCode;
 export const selectIsComplete = (state) => state.experiment.isComplete;
 export const selectIsSubmitted = (state) => state.experiment.isSubmitted;
@@ -40,7 +39,6 @@ export const selectAllExperimentData = (state) => ({
   // Experiment data
   responses: state.experiment.responses,
   fontCondition: state.experiment.fontCondition,
-  attributionCondition: state.experiment.attributionCondition,
   startTime: state.experiment.startTime,
   endTime: state.experiment.endTime,
   completionTimeMs: state.experiment.completionTimeMs,

@@ -7,15 +7,13 @@ import {
 } from '../store/slices/experimentSlice.js';
 import { 
   selectResponses, 
-  selectFontCondition, 
-  selectAttributionCondition 
+  selectFontCondition
 } from '../store/selectors.js';
 
 const LotteryChoice = ({ scenario, responseKey, title }) => {
   const dispatch = useDispatch();
   const responses = useSelector(selectResponses);
   const fontCondition = useSelector(selectFontCondition);
-  const attributionCondition = useSelector(selectAttributionCondition);
   
   const [selectedChoice, setSelectedChoice] = useState(responses[responseKey] || '');
 

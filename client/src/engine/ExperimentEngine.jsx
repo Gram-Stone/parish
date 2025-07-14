@@ -11,17 +11,10 @@ import { setPageOrder } from '../store/slices/experimentSlice.js';
 import { useTimeTracking } from '../hooks/useTimeTracking.js';
 
 // Import page components
-import LoadingPage from './LoadingPage.jsx';
-import PreviewPage from './PreviewPage.jsx';
-import WelcomePage from './WelcomePage.jsx';
-import LotteryChoice from './LotteryChoice.jsx';
-import AttentionCheck from './AttentionCheck.jsx';
-import WeatherQuestion from './WeatherQuestion.jsx';
-import BrandQuestion from './BrandQuestion.jsx';
-import EducationQuestion from './EducationQuestion.jsx';
-import CompletionPage from './CompletionPage.jsx';
+import LoadingPage from '../components/LoadingPage.jsx';
+import PreviewPage from '../components/PreviewPage.jsx';
 
-const ExperimentFlow = () => {
+const ExperimentEngine = ({ experimentConfig }) => {
   const dispatch = useDispatch();
   const currentPage = useSelector(selectCurrentPage);
   const isPreview = useSelector(selectIsPreview);
@@ -32,65 +25,60 @@ const ExperimentFlow = () => {
   // Time tracking starts when timer starts (after "Begin Study")
   useTimeTracking();
 
-  // Generate randomized page order on first load
+  // Generate page order based on experiment configuration
   useEffect(() => {
     if (!pageOrder && !isPreview) {
       const generatePageOrder = () => {
-        // Fixed pages that must be in order
-        const fixedPages = [
-          { id: 'welcome', component: <WelcomePage /> },
-          { 
-            id: 'lottery1', 
-            component: <LotteryChoice 
-              scenario="A" 
-              responseKey="lottery1"
-              title="Investment Scenario A"
-            /> 
-          }
-        ];
-
-        // Questions that can be randomized (excluding age and gender)
-        const randomizablePages = [
-          { id: 'attention', component: <AttentionCheck /> },
-          { id: 'weather', component: <WeatherQuestion /> },
-          { id: 'brand', component: <BrandQuestion /> },
-          { id: 'education', component: <EducationQuestion /> }
-        ];
-
-        // Shuffle the randomizable pages
-        const shuffled = [...randomizablePages].sort(() => Math.random() - 0.5);
-
-        // Insert lottery2 such that it's never consecutive with lottery1
-        // and ensure at least one question separates them
-        const insertIndex = Math.min(
-          Math.floor(Math.random() * (shuffled.length - 1)) + 1, 
-          shuffled.length - 1
-        ); // Insert somewhere in the middle, not at the very end
+        const { fixedPages, randomizablePages, constrainedPages, finalPages } = experimentConfig;
         
-        const lottery2Page = { 
-          id: 'lottery2', 
-          component: <LotteryChoice 
-            scenario="B" 
-            responseKey="lottery2"
-            title="Investment Scenario B"
-          /> 
-        };
-
-        shuffled.splice(insertIndex, 0, lottery2Page);
-
-        // Final order: welcome, lottery1, then randomized questions with lottery2 inserted
-        const finalOrder = [
-          ...fixedPages,
-          ...shuffled,
-          { id: 'completion', component: <CompletionPage /> }
-        ];
-
-        return finalOrder;
+        // Start with fixed pages in order
+        const orderedPages = [...fixedPages].sort((a, b) => a.order - b.order);
+        
+        // Shuffle randomizable pages
+        const shuffledPages = [...randomizablePages].sort(() => Math.random() - 0.5);
+        
+        // Insert constrained pages
+        constrainedPages.forEach(constrainedPage => {
+          const { constraints } = constrainedPage;
+          
+          if (constraints.notAfter) {
+            // Find the latest page it cannot be after
+            const latestNotAfterIndex = Math.max(
+              ...constraints.notAfter.map(pageId => 
+                orderedPages.findIndex(p => p.id === pageId)
+              )
+            );
+            
+            // Insert with minimum separation
+            const minIndex = latestNotAfterIndex + (constraints.minSeparation || 0) + 1;
+            const maxIndex = shuffledPages.length;
+            const insertIndex = Math.floor(Math.random() * (maxIndex - minIndex)) + minIndex;
+            
+            shuffledPages.splice(Math.min(insertIndex, shuffledPages.length), 0, constrainedPage);
+          } else {
+            // Insert randomly if no constraints
+            const insertIndex = Math.floor(Math.random() * shuffledPages.length);
+            shuffledPages.splice(insertIndex, 0, constrainedPage);
+          }
+        });
+        
+        // Add randomized pages to ordered pages
+        orderedPages.push(...shuffledPages);
+        
+        // Add final pages
+        const sortedFinalPages = [...finalPages].sort((a, b) => (b.order || 0) - (a.order || 0));
+        orderedPages.push(...sortedFinalPages);
+        
+        // Convert to page objects with components
+        return orderedPages.map(page => ({
+          id: page.id,
+          component: <page.component {...(page.props || {})} />
+        }));
       };
 
       dispatch(setPageOrder(generatePageOrder()));
     }
-  }, [pageOrder, isPreview, dispatch]);
+  }, [pageOrder, isPreview, dispatch, experimentConfig]);
 
   // Show loading if conditions or page order haven't been set yet (and not in preview)
   if (!isPreview && (!fontCondition || !pageOrder)) {
@@ -109,7 +97,7 @@ const ExperimentFlow = () => {
         <div className="error-container">
           <div className="error-title">Time Limit Exceeded</div>
           <div className="error-message">
-            You have exceeded the 60-minute time limit for this study. 
+            You have exceeded the {Math.round(experimentConfig.qualityControls.timeLimit / 60000)}-minute time limit for this study. 
             Unfortunately, your HIT submission will be rejected as you were 
             unable to complete the study within the required timeframe.
           </div>
@@ -121,7 +109,7 @@ const ExperimentFlow = () => {
     );
   }
 
-  // Use the randomized page order
+  // Use the generated page order
   const currentPageComponent = pageOrder?.[currentPage]?.component;
 
   if (!currentPageComponent) {
@@ -137,7 +125,6 @@ const ExperimentFlow = () => {
 
   return (
     <div className={`experiment-container ${fontCondition}-font`}>
-      
       {/* Current page content */}
       <div className="experiment-page">
         {currentPageComponent}
@@ -146,4 +133,4 @@ const ExperimentFlow = () => {
   );
 };
 
-export default ExperimentFlow;
+export default ExperimentEngine;
