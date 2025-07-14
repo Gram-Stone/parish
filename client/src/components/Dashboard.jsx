@@ -209,6 +209,30 @@ const Dashboard = () => {
               </div>
             </div>
             
+            {hitCreationResult.sandboxPreviewUrl && (
+              <div style={{ marginBottom: '12px' }}>
+                <strong>AMT Sandbox Preview URL:</strong>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                  <input 
+                    type="text" 
+                    value={hitCreationResult.sandboxPreviewUrl} 
+                    readOnly 
+                    style={{ flexGrow: 1, padding: '4px 8px', fontSize: '14px', backgroundColor: '#e7f3ff' }}
+                  />
+                  <button 
+                    className="btn-secondary" 
+                    onClick={() => copyToClipboard(hitCreationResult.sandboxPreviewUrl)}
+                    style={{ padding: '4px 12px', fontSize: '12px' }}
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+                  Use this URL to test as a worker in AMT sandbox
+                </div>
+              </div>
+            )}
+            
             <div style={{ marginBottom: '12px' }}>
               <strong>Experiment URL:</strong>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
@@ -225,6 +249,9 @@ const Dashboard = () => {
                 >
                   Copy
                 </button>
+              </div>
+              <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+                Your experiment content (loaded by AMT in iframe)
               </div>
             </div>
             
