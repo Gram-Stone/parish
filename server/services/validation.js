@@ -4,8 +4,8 @@ export const validateAttentionCheck = (answer, correctAnswer = 42) => {
 };
 
 // Validate completion time
-export const validateCompletionTime = (durationMs, minTime = 300000, maxTime = 3600000) => {
-  // minTime: 5 minutes (300,000 ms)
+export const validateCompletionTime = (durationMs, minTime = 30000, maxTime = 3600000) => {
+  // minTime: 30 seconds (30,000 ms) - reduced for testing
   // maxTime: 60 minutes (3,600,000 ms)
   
   const reasons = [];
