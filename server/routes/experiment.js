@@ -7,6 +7,12 @@ import { validateAttentionCheck, validateCompletionTime } from '../services/vali
 
 const router = express.Router();
 
+// Test endpoint to verify API connectivity
+router.get('/test', (req, res) => {
+  console.log('Test endpoint hit');
+  res.json({ message: 'Experiment API is working', timestamp: new Date().toISOString() });
+});
+
 // Get client IP address
 router.get('/get-ip', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || 

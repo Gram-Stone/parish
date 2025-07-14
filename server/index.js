@@ -57,6 +57,9 @@ const submitLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 5, // limit each IP to 5 submissions per minute
   message: 'Too many submission attempts, please try again later.',
+  onLimitReached: (req, res) => {
+    console.log(`Rate limit reached for IP: ${req.ip} on ${req.path}`);
+  }
 });
 
 // CORS configuration
@@ -77,6 +80,12 @@ app.set('trust proxy', 1);
 // Middleware to capture IP address
 app.use((req, res, next) => {
   req.clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+  next();
+});
+
+// Request logging middleware
+app.use('/api', (req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
 
