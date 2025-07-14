@@ -65,7 +65,9 @@ const CompletionPage = () => {
         browserInfo: experimentData.browserInfo
       };
 
-      const response = await fetch('/api/experiment/submit', {
+      // Use absolute URL to ensure it goes to our server, not AMT's domain
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/experiment/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
