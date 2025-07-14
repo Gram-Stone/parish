@@ -80,7 +80,7 @@ router.post('/submit', (req, res, next) => {
 
     // Quality control checks
     console.log('Math response:', responses.math, 'Type:', typeof responses.math);
-    const attentionPassed = validateAttentionCheck(parseInt(responses.math));
+    const attentionPassed = validateAttentionCheck(responses.math);
     console.log('Attention check result:', attentionPassed);
     
     const timeValidation = validateCompletionTime(timing.durationMs);
