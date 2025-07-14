@@ -8,8 +8,8 @@ const createMTurkClient = () => {
       ? process.env.MTURK_ENDPOINT_PRODUCTION 
       : process.env.MTURK_ENDPOINT_SANDBOX,
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.AMT_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.AMT_SECRET_ACCESS_KEY
     }
   });
 };
