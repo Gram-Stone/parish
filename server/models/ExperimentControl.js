@@ -128,7 +128,7 @@ const experimentControlSchema = new mongoose.Schema({
 });
 
 // Indexes for efficient querying
-experimentControlSchema.index({ experimentId: 1 });
+// Note: experimentId already has unique index from schema definition
 experimentControlSchema.index({ status: 1 });
 experimentControlSchema.index({ 'researcher.email': 1 });
 experimentControlSchema.index({ createdAt: 1 });
