@@ -40,6 +40,12 @@ app.use(helmet({
         "https://workersandbox.mturk.com",
         "https://worker.mturk.com"
       ],
+      formAction: [
+        "'self'",
+        "https://*.mturk.com",
+        "https://workersandbox.mturk.com",
+        "https://worker.mturk.com"
+      ],
     },
   },
 }));

@@ -3,7 +3,7 @@ import { body, validationResult } from 'express-validator';
 import { MTurkClient } from '@aws-sdk/client-mturk';
 import ExperimentControl from '../models/ExperimentControl.js';
 import Response from '../models/Response.js';
-import { createHIT, approveAssignment, rejectAssignment, getHITStatus } from '../services/amtService.js';
+import { createHIT, approveAssignment, rejectAssignment, getHITStatus, deleteHIT } from '../services/amtService.js';
 
 const router = express.Router();
 
@@ -302,6 +302,58 @@ router.post('/bulk-approve', [
     res.status(500).json({ 
       error: 'Bulk approval failed',
       message: error.message 
+    });
+  }
+});
+
+// Delete HIT (for cleanup/testing)
+router.delete('/hit/:hitId', async (req, res) => {
+  try {
+    const { hitId } = req.params;
+    
+    console.log(`Attempting to delete HIT: ${hitId}`);
+    
+    // Check if HIT has any assignments first
+    const mturk = new MTurkClient({
+      region: process.env.AWS_REGION || 'us-east-1',
+      endpoint: process.env.NODE_ENV === 'production' 
+        ? process.env.MTURK_ENDPOINT_PRODUCTION 
+        : process.env.MTURK_ENDPOINT_SANDBOX,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.AMT_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.AMT_SECRET_ACCESS_KEY
+      }
+    });
+
+    try {
+      const assignments = await mturk.listAssignmentsForHIT({ HITId: hitId });
+      if (assignments.Assignments && assignments.Assignments.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Cannot delete HIT with active assignments',
+          assignmentCount: assignments.Assignments.length
+        });
+      }
+    } catch (assignmentError) {
+      console.log('Could not check assignments (HIT may not exist):', assignmentError.message);
+    }
+    
+    const result = await deleteHIT(hitId);
+    
+    console.log(`HIT deleted successfully: ${hitId}`);
+    
+    res.json({
+      success: true,
+      message: 'HIT deleted successfully',
+      hitId,
+      result
+    });
+  } catch (error) {
+    console.error('Error deleting HIT:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Failed to delete HIT. It may have active assignments or not exist.'
     });
   }
 });
