@@ -12,6 +12,63 @@ router.get('/experiments', async (req, res) => {
       .sort({ createdAt: -1 })
       .select('-notes -adminNotes');
 
+    // Fix any incomplete experiments by adding missing required fields
+    let hasIncompleteExperiments = false;
+    for (const experiment of experiments) {
+      let needsUpdate = false;
+      
+      if (!experiment.title) {
+        experiment.title = `${experiment.experimentId} Study`;
+        needsUpdate = true;
+      }
+      
+      if (!experiment.targetSampleSize || !experiment.targetSampleSize.total) {
+        experiment.targetSampleSize = {
+          total: 200,
+          byCondition: {
+            easy: 100,
+            hard: 100
+          }
+        };
+        needsUpdate = true;
+      }
+      
+      if (!experiment.budget || !experiment.budget.total || !experiment.budget.rewardPerParticipant) {
+        experiment.budget = {
+          total: 200,
+          spent: 0,
+          rewardPerParticipant: 1.00
+        };
+        needsUpdate = true;
+      }
+      
+      if (!experiment.hitConfig) {
+        experiment.hitConfig = {
+          title: 'Decision Making Study (15-20 minutes)',
+          description: 'Participate in a psychology study about decision making.',
+          keywords: ['psychology', 'decision making', 'survey', 'research'],
+          reward: '$1.00',
+          assignmentDuration: 3600,
+          lifetime: 604800,
+          maxAssignments: 1
+        };
+        needsUpdate = true;
+      }
+      
+      if (needsUpdate) {
+        console.log(`Updating incomplete experiment: ${experiment.experimentId}`);
+        await experiment.save();
+        hasIncompleteExperiments = true;
+      }
+    }
+
+    // If we fixed some experiments, reload them
+    if (hasIncompleteExperiments) {
+      experiments = await ExperimentControl.find({})
+        .sort({ createdAt: -1 })
+        .select('-notes -adminNotes');
+    }
+
     // If no experiments exist, create a default one
     if (experiments.length === 0) {
       const defaultExperiment = new ExperimentControl({
