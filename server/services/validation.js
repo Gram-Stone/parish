@@ -11,7 +11,7 @@ export const validateCompletionTime = (durationMs, minTime = 300000, maxTime = 3
   const reasons = [];
   
   if (durationMs < minTime) {
-    reasons.push('too_fast');
+    reasons.push('time_limit');
   }
   
   if (durationMs > maxTime) {
