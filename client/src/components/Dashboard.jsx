@@ -80,6 +80,34 @@ const Dashboard = () => {
     }
   };
 
+  const handleCreateHIT = async () => {
+    if (!selectedExperiment) return;
+    
+    try {
+      const response = await fetch(`/api/dashboard/experiments/${selectedExperiment}/hits`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          maxAssignments: 1
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(`HIT created successfully!\nHIT ID: ${data.hitId}\n\nExperiment URL:\n${data.experimentUrl}`);
+        // Reload experiment data to show updated HIT info
+        loadExperimentData(selectedExperiment);
+      } else {
+        alert('Failed to create HIT: ' + data.error);
+      }
+    } catch (error) {
+      alert('Failed to create HIT: ' + error.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container">
@@ -123,6 +151,28 @@ const Dashboard = () => {
             </option>
           ))}
         </select>
+      </div>
+
+      {/* HIT Management */}
+      <div className="card">
+        <h3>HIT Management</h3>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button 
+            className="btn-primary"
+            onClick={handleCreateHIT}
+            disabled={!selectedExperiment}
+          >
+            Create HIT
+          </button>
+          <div style={{ fontSize: '14px', color: '#6c757d' }}>
+            Create a new Amazon Mechanical Turk HIT for this experiment
+          </div>
+        </div>
+        {selectedExperiment && (
+          <div style={{ marginTop: '16px', fontSize: '14px' }}>
+            <strong>Experiment URL:</strong> {window.location.origin}/?workerId=PREVIEW&assignmentId=ASSIGNMENT_ID_NOT_AVAILABLE&hitId=PREVIEW
+          </div>
+        )}
       </div>
 
       {stats && (
