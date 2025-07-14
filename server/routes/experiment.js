@@ -7,13 +7,22 @@ import { validateAttentionCheck, validateCompletionTime } from '../services/vali
 
 const router = express.Router();
 
+// Get client IP address
+router.get('/get-ip', (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || 
+             req.connection.remoteAddress || 
+             req.socket.remoteAddress ||
+             (req.connection.socket ? req.connection.socket.remoteAddress : null);
+  
+  res.json({ ip: ip || 'unknown' });
+});
+
 // Validation middleware for experiment submission
 const validateSubmission = [
   body('workerId').trim().notEmpty().withMessage('Worker ID is required'),
   body('assignmentId').trim().notEmpty().withMessage('Assignment ID is required'),
   body('hitId').trim().notEmpty().withMessage('HIT ID is required'),
   body('fontCondition').isIn(['easy', 'hard']).withMessage('Invalid font condition'),
-  body('attributionCondition').isIn(['present', 'absent']).withMessage('Invalid attribution condition'),
   body('responses.lottery1').isIn(['A', 'B']).withMessage('Invalid lottery 1 choice'),
   body('responses.lottery2').isIn(['C', 'D']).withMessage('Invalid lottery 2 choice'),
   body('responses.math').isNumeric().withMessage('Math answer must be numeric'),
@@ -39,7 +48,6 @@ router.post('/submit', validateSubmission, async (req, res) => {
       assignmentId,
       hitId,
       fontCondition,
-      attributionCondition,
       responses,
       timing,
       browserInfo,
@@ -76,7 +84,7 @@ router.post('/submit', validateSubmission, async (req, res) => {
       assignmentId: assignmentId.trim(),
       hitId: hitId.trim(),
       fontCondition,
-      attributionCondition,
+      attributionCondition: 'absent', // Default since we removed attribution
       lottery1Choice: responses.lottery1,
       lottery2Choice: responses.lottery2,
       additionalResponses: {
