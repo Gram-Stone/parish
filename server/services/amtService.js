@@ -53,21 +53,8 @@ export const createHIT = async (hitConfig) => {
         </ExternalQuestion>
       `,
       QualificationRequirements: [
-        {
-          QualificationTypeId: '00000000000000000071', // US Locale
-          Comparator: 'EqualTo',
-          LocaleValues: [{ Country: 'US' }]
-        },
-        {
-          QualificationTypeId: '000000000000000000L0', // Approval Rate
-          Comparator: 'GreaterThanOrEqualTo',
-          IntegerValues: [95]
-        },
-        {
-          QualificationTypeId: '00000000000000000040', // Number of HITs Approved
-          Comparator: 'GreaterThanOrEqualTo',
-          IntegerValues: [100]
-        }
+        // Removed strict qualifications for sandbox testing
+        // Add back for production: US locale, approval rate, HIT count requirements
       ],
       AutoApprovalDelayInSeconds: 259200 // 3 days
     };
