@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [recentResponses, setRecentResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hitCreationResult, setHitCreationResult] = useState(null);
 
   useEffect(() => {
     loadExperiments();
@@ -97,7 +98,7 @@ const Dashboard = () => {
       const data = await response.json();
       
       if (response.ok) {
-        alert(`HIT created successfully!\nHIT ID: ${data.hitId}\n\nExperiment URL:\n${data.experimentUrl}`);
+        setHitCreationResult(data);
         // Reload experiment data to show updated HIT info
         loadExperimentData(selectedExperiment);
       } else {
@@ -105,6 +106,22 @@ const Dashboard = () => {
       }
     } catch (error) {
       alert('Failed to create HIT: ' + error.message);
+    }
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    } catch (error) {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Copied to clipboard!');
     }
   };
 
@@ -168,9 +185,80 @@ const Dashboard = () => {
             Create a new Amazon Mechanical Turk HIT for this experiment
           </div>
         </div>
-        {selectedExperiment && (
+        
+        {hitCreationResult && (
+          <div style={{ marginTop: '20px', padding: '16px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '4px' }}>
+            <h4 style={{ color: '#155724', marginBottom: '12px' }}>✓ HIT Created Successfully!</h4>
+            
+            <div style={{ marginBottom: '12px' }}>
+              <strong>HIT ID:</strong>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                <input 
+                  type="text" 
+                  value={hitCreationResult.hitId} 
+                  readOnly 
+                  style={{ flexGrow: 1, padding: '4px 8px', fontSize: '14px' }}
+                />
+                <button 
+                  className="btn-secondary" 
+                  onClick={() => copyToClipboard(hitCreationResult.hitId)}
+                  style={{ padding: '4px 12px', fontSize: '12px' }}
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+            
+            <div style={{ marginBottom: '12px' }}>
+              <strong>Experiment URL:</strong>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                <input 
+                  type="text" 
+                  value={hitCreationResult.experimentUrl} 
+                  readOnly 
+                  style={{ flexGrow: 1, padding: '4px 8px', fontSize: '14px' }}
+                />
+                <button 
+                  className="btn-secondary" 
+                  onClick={() => copyToClipboard(hitCreationResult.experimentUrl)}
+                  style={{ padding: '4px 12px', fontSize: '12px' }}
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+            
+            <div style={{ fontSize: '12px', color: '#856404', backgroundColor: '#fff3cd', padding: '8px', borderRadius: '4px' }}>
+              {hitCreationResult.message}
+            </div>
+            
+            <button 
+              onClick={() => setHitCreationResult(null)}
+              style={{ marginTop: '12px', padding: '4px 8px', fontSize: '12px', border: '1px solid #ccc', background: 'white', cursor: 'pointer' }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+        
+        {selectedExperiment && !hitCreationResult && (
           <div style={{ marginTop: '16px', fontSize: '14px' }}>
-            <strong>Experiment URL:</strong> {window.location.origin}/?workerId=PREVIEW&assignmentId=ASSIGNMENT_ID_NOT_AVAILABLE&hitId=PREVIEW
+            <strong>Preview URL:</strong> 
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+              <input 
+                type="text" 
+                value={`${window.location.origin}/?workerId=PREVIEW&assignmentId=ASSIGNMENT_ID_NOT_AVAILABLE&hitId=PREVIEW`}
+                readOnly 
+                style={{ flexGrow: 1, padding: '4px 8px', fontSize: '14px' }}
+              />
+              <button 
+                className="btn-secondary" 
+                onClick={() => copyToClipboard(`${window.location.origin}/?workerId=PREVIEW&assignmentId=ASSIGNMENT_ID_NOT_AVAILABLE&hitId=PREVIEW`)}
+                style={{ padding: '4px 12px', fontSize: '12px' }}
+              >
+                Copy
+              </button>
+            </div>
           </div>
         )}
       </div>
